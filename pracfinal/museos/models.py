@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -14,7 +15,15 @@ class Museo(models.Model):
 	Direccion = models.TextField(default="")
 	CodigoPostal = models.IntegerField(default="0")
 	Enlace = models.TextField(default="")
+	NumeroComentarios = models.IntegerField(default="0")
 
 	def __str__(self):
 		return self.Nombre
 
+class Comentario(models.Model):
+	Usuario = models.ForeignKey(User)		
+	Comment = models.TextField(default="")
+	MuseoComentado = models.ForeignKey('Museo')
+
+	def __str__(self):
+		return str(self.MuseoComentado)

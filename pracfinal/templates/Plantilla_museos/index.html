@@ -15,6 +15,7 @@
 <div id="header_left">
 <h1>Museos <span class="red">de Madrid</span></h1>
 <h2>¡Visítalos todos!</h2>
+<h3>{{ inicio|safe }}</h3>
 </div>
 
 <div id="header_right">
@@ -34,6 +35,11 @@
   
 </div>
 
+<div id="left">
+
+<h4>{{ formulario_distrito|safe }}</h4>
+
+</div>
 
 
 <div id="right">
@@ -43,8 +49,6 @@
 
   <p>{{ content|safe }}</p>
   
-  
-  <p>{{ inicio|safe }}</p>
   
 
 <div id="footer">Esta aplicación utiliza datos del portal de datos abiertos de la Comunidad de Madrid <a href="https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=118f2fdbecc63410VgnVCM1000000b205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default">Ir a la página</a> </div>

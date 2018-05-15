@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import get_template
 from django.template import Context
 from xml.dom import minidom
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -28,6 +29,12 @@ boton_accesibles = """
 	</form>
 	"""
 
+boton_accesibles_get = """
+	<form action="http://localhost:8000/" method="GET">
+	<input type="submit" value="Accesibles">
+	</form>
+	"""
+
 # Código visto en StackOverFlow
 
 
@@ -44,7 +51,7 @@ def barra(request):
 		museos = Museo.objects.all()
 		respuesta = "<ul>"
 		for museo in museos:
-			if museo.Accesibilidad == 1:
+			if museo.Accesibilidad == 0:
 				url = museo.Enlace
 				direccion = "Dirección: " + museo.Direccion
 				mas_info = '<a href="/museos/' + str(museo.id) + '">' + "Más información" + '</a>'
@@ -52,7 +59,7 @@ def barra(request):
 				respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
 		respuesta += "<ul>"
 		template = get_template("Plantilla_1/index.html") #	
-		c = Context({'logged': logged, 'content': respuesta, 'todos': boton_accesibles})
+		c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles_get, 'todos': boton_todos})
 		return HttpResponse(template.render(c))
 			
 	
@@ -86,23 +93,39 @@ def barra(request):
 
 			museo_nuevo.save()
 
-	museos = Museo.objects.all()
+	#respuesta = "<ul>"
+	#for museo in museos:
+	#	url = museo.Enlace
+	#	direccion = "Dirección: " + museo.Direccion
+	#	mas_info = '<a href="/museos/' + str(museo.id) + '">' + "Más información" + '</a>'
+	#	contenido = direccion + "<br>" + mas_info
+	#	respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
+	#respuesta += "<ul>"
+
+	museos_comentados = Museo.objects.order_by('-NumeroComentarios')
 	respuesta = "<ul>"
-	for museo in museos:
-		url = museo.Enlace
-		direccion = "Dirección: " + museo.Direccion
-		mas_info = '<a href="/museos/' + str(museo.id) + '">' + "Más información" + '</a>'
-		contenido = direccion + "<br>" + mas_info
-		respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
+	k = 0
+	for museo in museos_comentados:
+		if museo.NumeroComentarios >0:
+			url = museo.Enlace
+			direccion = "Dirección: " + museo.Direccion
+			mas_info = '<a href="/museos/' + str(museo.id) + '">' + "Más información" + '</a>'
+			contenido = direccion + "<br>" + mas_info
+			respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
+		k = k +1
+		if k == 5:
+			break
 	respuesta += "<ul>"
 
-	#template = get_template("Plantilla_1/index.html") #	
-	#c = Context({'logged': logged, 'nombre_museo': respuesta, 'content': contenido, 'boton_todos': boton_todos})
-	#return HttpResponse(template.render(c))
-	#return HttpResponse(logged + "<br>" + "<br>" + "Museos: " + "<br>" + respuesta + "<br>" + boton_todos)
+
+	users_list = []
+	users = User.objects.all()
+
+	for user in users:
+		users_list += [user]
 
 	template = get_template("Plantilla_1/index.html") #	
-	c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles, 'todos': boton_todos})
+	c = Context({'logged': logged, 'content': respuesta, 'lista_usuarios': users_list ,'accesibles': boton_accesibles, 'todos': boton_todos})
 	return HttpResponse(template.render(c))
 
 
@@ -115,7 +138,7 @@ def museos(request):
 	else:
 		logged = 'Not logged in.' + ' <a href=http://localhost:8000/login?next=/museos>login</a>'
 
-	formulario = """
+	formulario_distrito = """
 		<form action="" method="POST">
 		<br>Introduce distrito:<br>
 			Distrito <input type="text" name="distrito"><br>
@@ -132,7 +155,9 @@ def museos(request):
 			if distrito == museo.Distrito:
 				respuesta += '<li><a href="/museos/' + str(museo.id) + '">' + museo.Nombre + '</a>'
 		respuesta += "<ul>"
-		return HttpResponse("Museos en distrito: " + distrito + "<br>" + logged + "<br>" + formulario + "<br>" + "Museos: " + "<br>" + respuesta+ "<br>" + boton_inicio)
+		template = get_template("Plantilla_museos/index.html") #	
+		c = Context({'logged': logged, 'formulario_distrito': formulario_distrito, 'content': respuesta, 'inicio': boton_inicio})
+		return HttpResponse(template.render(c))
 
 	museos = Museo.objects.all() # dame todos los museos; me los devuelve en una lista; museo.id, museo.nombre...
 	respuesta = "<ul>"
@@ -143,7 +168,7 @@ def museos(request):
 	#return HttpResponse("TODOS LOS MUSEOS" + "<br>" + logged + "<br>" + formulario + "<br>" + "Museos: " + "<br>" + respuesta+ "<br>" + boton_inicio)
 
 	template = get_template("Plantilla_museos/index.html") #	
-	c = Context({'logged': logged, 'content': respuesta, 'inicio': boton_inicio})
+	c = Context({'logged': logged, 'formulario_distrito': formulario_distrito, 'content': respuesta, 'inicio': boton_inicio})
 	return HttpResponse(template.render(c))
 
 
