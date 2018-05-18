@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Delicious Fruit | Dieter Schneider 2007 | www.csstemplateheaven.com</title>
-<link rel="stylesheet" type="text/css" href="static/style.css" />
+<link rel="stylesheet" type="text/css" href="http://localhost:8000/static/style.css" />
 </head>
 
 <body>
@@ -15,7 +15,6 @@
 <div id="header_left">
 <h1>Museos <span class="red">de Madrid</span></h1>
 <h2>¡Visítalos todos!</h2>
-<p>{{ formulario_distrito|safe }}</p>
 </div>
 
 <div id="header_right">
@@ -42,6 +41,7 @@
 <div id="navcontainer">
 <ul id="navlist">
 <li><a href= "/">Inicio</a></li>
+<li><a href= "/museos">Todos</a></li>
 <li class="green"><a href="#">About</a></li>
 </ul>
 </div>
@@ -72,7 +72,7 @@
 
 <div id="right">
 
-<h3>Todos los museos </h3>
+<h3>{{ nombre }}</h3>
 
 
   <p>{{ content|safe }}</p>

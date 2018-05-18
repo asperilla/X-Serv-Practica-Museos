@@ -10,7 +10,6 @@ class Museo(models.Model):
 	Barrio = models.TextField(default="")
 	Distrito = models.TextField(default="")
 	Telefono = models.TextField(default="")
-	Fax = models.TextField(default="")
 	Email = models.TextField(default="")
 	Direccion = models.TextField(default="")
 	CodigoPostal = models.IntegerField(default="0")

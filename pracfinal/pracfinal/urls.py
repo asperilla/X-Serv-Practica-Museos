@@ -30,5 +30,6 @@ urlpatterns = [
 	url(r'^login', login),
     url(r'^admin/', include(admin.site.urls)),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_1'}),
-	url(r'museos/static/(.*)$', serve, {'document_root': 'templates/Plantilla_museos'}),
+	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museos'}),
+	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museo'}),
 ]
