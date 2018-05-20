@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Contenidos>
+    <infoDataset>
+        <nombre>Museos de la página personal de {{ usuario }}</nombre>
+        <descripcion> Datos de los Museos de la ciudad de Madrid. Localización, transportes, horarios, visitas, datos de contacto. 
+     	</descripcion>
+    </infoDataset>
+    <contenido>
+        <tipo>EntidadesYOrganismos</tipo>
+        <atributos idioma="es">
+            <atributo nombre="NOMBRE">{{ nombre }}</atributo>
+            <atributo nombre="DESCRIPCION-ENTIDAD"><![CDATA[{{ descripcion }}]]></atributo>
+            <atributo nombre="ACCESIBILIDAD">{{ accesibilidad }}</atributo>
+            <atributo nombre="CONTENT-URL">{{ enlace }}</atributo>
+            <atributo nombre="LOCALIZACION">
+                <atributo nombre="NOMBRE-VIA">{{ direccion }}</atributo>
+                <atributo nombre="CODIGO-POSTAL">{{ codigopostal }}</atributo>
+                <atributo nombre="BARRIO">{{ barrio }}</atributo>
+                <atributo nombre="DISTRITO">{{ distrito }}</atributo>
+            </atributo>
+            <atributo nombre="DATOSCONTACTOS">
+                <atributo nombre="TELEFONO">{{ telefono }}</atributo>
+                <atributo nombre="EMAIL">{{ email }}</atributo>
+            </atributo>
+        </atributos>
+    </contenido>
+</Contenidos>

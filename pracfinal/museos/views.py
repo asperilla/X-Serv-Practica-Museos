@@ -40,7 +40,7 @@ def barra(request):
 		museos = Museo.objects.all()
 		respuesta = "<ul>"
 		for museo in museos:
-			if museo.Accesibilidad == 0:
+			if museo.Accesibilidad == "0":
 				url = museo.Enlace
 				direccion = "Dirección: " + museo.Direccion
 				mas_info = '<a href="/museos/' + str(museo.id) + '">' + "Más información" + '</a>'
@@ -48,7 +48,7 @@ def barra(request):
 				respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
 		respuesta += "<ul>"
 		template = get_template("Plantilla_1/index.html") #	
-		c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles_get, 'todos': boton_todos})
+		c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles_get})
 		return HttpResponse(template.render(c))
 			
 	
@@ -64,6 +64,7 @@ def barra(request):
 			dicc = {}
 			atributos_list = xmldoc.getElementsByTagName('atributos')[i]
 			atributo_list = atributos_list.getElementsByTagName('atributo')
+
 			for item in atributo_list:
 				llave = item.attributes['nombre'].value
 				if llave != "NOMBRE" and llave != "DESCRIPCION-ENTIDAD" and llave != "ACCESIBILIDAD" and llave != "BARRIO" and llave != "DISTRITO" and llave != "TELEFONO" and llave != "EMAIL" and llave != "NOMBRE-VIA" and llave != "CODIGO-POSTAL" and llave != "CONTENT-URL":
@@ -71,7 +72,16 @@ def barra(request):
 				else:
 					valor = item.childNodes[0].nodeValue
 					dicc[llave] = valor
-	
+			
+			lista_caracteristicas = ["NOMBRE","DESCRIPCION-ENTIDAD","ACCESIBILIDAD","BARRIO,DISTRITO","TELEFONO","EMAIL","NOMBRE-VIA","CODIGO-POSTAL","CONTENT-URL"]
+			lista_keys = []
+			for key,value in dicc.items():
+				lista_keys += [key]
+			print(lista_keys)
+			
+			for i in lista_caracteristicas:
+				if i not in lista_keys:
+					dicc[i] = ""
 
 			try:
 				museo_nuevo = Museo(Nombre=dicc["NOMBRE"], Descripcion=dicc["DESCRIPCION-ENTIDAD"], Accesibilidad=dicc["ACCESIBILIDAD"],
@@ -79,7 +89,6 @@ def barra(request):
 
 			except KeyError:
 				continue
-			
 			except ValueError:
 				continue
 
@@ -101,15 +110,14 @@ def barra(request):
 			break
 	respuesta += "<ul>"
 
-	lista = "<ul>"
+	l_nombres = []
 	users = User.objects.all()
 	for user in users:
 		nombre = user.username
-		lista += nombre + "<br>"
-	lista += "<ul>"
-
-	template = get_template("Plantilla_1/index.html") #	'lista_usuarios': users_list
-	c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles, 'lista_usuarios': lista})
+		l_nombres += [nombre]
+		
+	template = get_template("Plantilla_1/index.html")
+	c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
 
 
@@ -149,8 +157,14 @@ def museos(request):
 		respuesta += '<li>''<a href="/museos/' + str(museo.id) + '">' + museo.Nombre + '</a>'		
 	respuesta += "<ul>"			
 
+	l_nombres = []
+	users = User.objects.all()
+	for user in users:
+		nombre = user.username
+		l_nombres += [nombre]
+
 	template = get_template("Plantilla_museos/index.html") #	
-	c = Context({'logged': logged, 'content': respuesta, 'formulario_distrito': formulario_distrito})
+	c = Context({'logged': logged, 'content': respuesta, 'formulario_distrito': formulario_distrito, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
 
 @csrf_exempt
@@ -232,24 +246,54 @@ def museo(request, number):
 		c = Context({'logged': logged, 'nombre': nombre, 'content': respuesta})
 		return HttpResponse(template.render(c))
 	
+
+	l_nombres = []
+	users = User.objects.all()
+	for user in users:
+		nombre_m = user.username
+		l_nombres += [nombre_m]
+
 	template = get_template("Plantilla_museo/index.html") #	
-	c = Context({'logged': logged, 'nombre': nombre, 'content': respuesta})
+	c = Context({'logged': logged, 'nombre': nombre, 'content': respuesta, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
 
 @csrf_exempt
 def usuario(request, name):
-
-	if request.user.is_authenticated():
-		logged = 'Logged in as ' + request.user.username + ' <a href=logout?next=/>logout</a>'
-	else:
-		logged = 'Not logged in.' + ' <a href=login?next=/>login</a>'
 
 	boton_cargar = """
 		<form action="" method="POST">
 		<input type="submit" name= "cargar" value="Cargar más">
 		</form>
 		"""
+
+	formulario_titulo = """
+		<form action="" method="POST">
+		<br>Introduce un título para tu página personal:<br>
+			<input type="text" name="nuevo_titulo"><br>
+			<input type="submit" value="Enviar">
+		</form>
+		"""
+
+	formulario_color = """
+		<form action="" method="POST">
+		<br>Introduce un color para tu página personal:<br>
+			<input type="text" name="nuevo_color"><br>
+			<input type="submit" value="Enviar">
+		</form>
+		"""
+
+	formulario_letra = """
+		<form action="" method="POST">
+		<br>Introduce un tamaño de letra para tu página personal:<br>
+			<input type="text" name="nueva_letra"><br>
+			<input type="submit" value="Enviar">
+		</form>
+		"""
+
 	pulsado = request.POST.get("añadir")
+	cambio_titulo = request.POST.get("nuevo_titulo")
+	cambio_color = request.POST.get("nuevo_color")
+	cambio_letra = request.POST.get("nueva_letra")
 
 	paginas = PagPersonal.objects.all()
 
@@ -287,23 +331,74 @@ def usuario(request, name):
 	if k >= 5:
 		contenido = primera_respuesta + boton_cargar
 
+
+	usuario = User.objects.get(username=name)
+	paginapers = PagPersonal.objects.get(Usuario=usuario)
+
 	if request.method == "POST":
-		if k > 5:
-			contenido = respuesta
+		if pulsado:
+			if k > 5:
+				contenido = respuesta
 
-		if k <= 5:
-			contenido = "No hay más museos"
+			if k <= 5:
+				contenido = "No hay más museos"
+		
+		if cambio_titulo:
+			titulo = cambio_titulo
+			paginapers.Titulo = titulo
+			paginapers.save()
 
+		if cambio_color:
+			color = cambio_color
+			paginapers.Color = color
+			paginapers.save()
 
-	nombre = "Página personal de " + usuario.username
+		if cambio_letra:
+			letra = cambio_letra
+			paginapers.TamañoLetra = letra
+			paginapers.save()
+
+	if request.user.is_authenticated():
+		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
+		contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
+	else:
+		logged = 'Not logged in.' + ' <a href=login?next=/>login</a>'
+
+	paginapers = PagPersonal.objects.get(Usuario=usuario)
+
+	l_nombres = []
+	users = User.objects.all()
+	for user in users:
+		nombre = user.username
+		l_nombres += [nombre]
+
 	template = get_template("Plantilla_personal/index.html") 
-	c = Context({'logged': logged, 'nombre': nombre, 'content': contenido})
+	c = Context({'logged': logged, 'nombre': paginapers.Titulo, 'color': paginapers.Color, 'letra': paginapers.TamañoLetra, 'content': contenido, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
 
 		
+def about(request):
+	return HttpResponse("Esta es la práctica final de la asignatura Servicios y Aplicaciones en Redes de Ordenadores" + "<br>" + 
+						"Realizada por: Sergio Asperilla Díaz")
+
+def xml(request, usuarioxml):
+	usuario = User.objects.get(username = usuarioxml)
+	pag = PagPersonal.objects.get(Usuario=usuario)
+
+	Nombre = pag.MuseoSeleccionado.Nombre
+	Descripcion = pag.MuseoSeleccionado.Descripcion
+	Accesibilidad = pag.MuseoSeleccionado.Accesibilidad
+	Barrio = pag.MuseoSeleccionado.Barrio
+	Distrito = pag.MuseoSeleccionado.Distrito
+	Telefono = pag.MuseoSeleccionado.Telefono
+	Email = pag.MuseoSeleccionado.Email
+	Direccion = pag.MuseoSeleccionado.Direccion
+	CodigoPostal = pag.MuseoSeleccionado.CodigoPostal
+	Enlace = pag.MuseoSeleccionado.Enlace
 	
-
-
-
+	template = get_template("Plantilla_xml/index.html") 
+	c = Context({'usuario': usuarioxml, 'nombre': Nombre, 'descripcion':Descripcion ,'accesibilidad':Accesibilidad, 'barrio':Barrio, 'distrito':Distrito, 'telefono':Telefono,'email':Email,'direccion':Direccion,'codigopostal':CodigoPostal,'enlace':Enlace})
+	
+	return HttpResponse(template.render(c), content_type = "text/xml")
 
 

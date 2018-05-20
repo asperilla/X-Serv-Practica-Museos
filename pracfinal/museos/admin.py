@@ -7,3 +7,4 @@ from .models import Museo, Comentario, PagPersonal
 admin.site.register(Museo)
 admin.site.register(Comentario)
 admin.site.register(PagPersonal)
+
