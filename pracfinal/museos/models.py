@@ -19,10 +19,19 @@ class Museo(models.Model):
 	def __str__(self):
 		return self.Nombre
 
-class Comentario(models.Model):
-	Usuario = models.ForeignKey(User)		
+class Comentario(models.Model):	
 	Comment = models.TextField(default="")
 	MuseoComentado = models.ForeignKey('Museo')
 
 	def __str__(self):
 		return str(self.MuseoComentado)
+
+class PagPersonal(models.Model):
+	Usuario = models.ForeignKey(User)
+	MuseoSeleccionado = models.ForeignKey('Museo')
+	FechaSeleccion = models.DateField(auto_now_add="True")
+
+	def __str__(self):
+		return str(self.MuseoSeleccionado)
+
+

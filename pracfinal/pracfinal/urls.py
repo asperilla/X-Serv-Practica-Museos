@@ -25,11 +25,12 @@ urlpatterns = [
 	url(r'^$', 'museos.views.barra'),
 	url(r'^museos$', 'museos.views.museos'),
 	url(r'^museos/(\d+)$', 'museos.views.museo'),
-	url(r'^usuario$', 'museos.views.usuario'),
 	url(r'^logout', logout), 
 	url(r'^login', login),
     url(r'^admin/', include(admin.site.urls)),
+	url(r'^(.*)$', 'museos.views.usuario'),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_1'}),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museos'}),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museo'}),
+	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_personal'}),
 ]
