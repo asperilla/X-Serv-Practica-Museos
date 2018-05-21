@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Sergio Asperilla Díaz</title>
+<link rel="stylesheet" type="text/css" href="static/style.css" />
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="header">
+
+<div id="header_left">
+<h1>Museos <span class="red">de Madrid</span></h1>
+<h2>¡Visítalos todos!</h2>
+
+</div>
+
+<div id="header_right">
+
+
+  <form id="form1" method="post" action="/login">
+    <p>{{ logged|safe }}</p>
+  </form>
+  </div>
+  
+</div>
+
+<div id="left">
+
+<h4><span class="red">Menú</span></h4>
+
+<div id="navcontainer">
+<ul id="navlist">
+<li><a href= "/">Inicio</a></li>
+<li><a href= "/museos">Todos</a></li>
+
+</ul>
+</div>
+
+<h4><span class="red">Páginas de usuario </span></h4>
+
+
+<div id="navcontainer">
+<ul id="navlist">
+
+
+{% for i in lista_usuarios %}
+    <li><a href= "/{{i}}">{{ i }}</a></li>
+{% endfor %}
+
+
+
+</ul>
+</div>
+
+<h4><span class="red">Link del portal de datos abierto </span></h4>
+
+
+
+<a href="https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=118f2fdbecc63410VgnVCM1000000b205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default">Ir a página</a></div>
+
+<div id="right">
+
+
+<h3>Ayuda </h3>
+
+
+	<p>{{ content|safe }}</p>
+  
+
+
+<div id="footer">Esta aplicación utiliza datos del portal de datos abiertos de la Comunidad de Madrid <a href="https://datos.madrid.es/por
+tal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=118f2fdbecc63410VgnVCM1000000b205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default">Ir a la página</a> </div>
+</div>
+
+
+</body>
+</html>
