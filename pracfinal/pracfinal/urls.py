@@ -35,5 +35,6 @@ urlpatterns = [
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museos'}),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_museo'}),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_personal'}),
+	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_about'}),
 	url(r'static/(.*)$', serve, {'document_root': 'templates/Plantilla_xml'}),
 ]

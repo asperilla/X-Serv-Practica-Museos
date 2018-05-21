@@ -238,7 +238,7 @@ def museo(request, number):
 			usuario = User.objects.get(username=request.user.username)
 			nuevo_museo_seleccionado = PagPersonal(Usuario = usuario, MuseoSeleccionado = museo)
 			nuevo_museo_seleccionado.save()
-			respuesta = "Museo añadido a tu página personal" + "<br>" + respuesta + "<br>" + formulario_comentario 
+			respuesta = "Museo añadido a tu página personal" + "<br>" + respuesta + "<br>"
 		
 	l_nombres = []
 	users = User.objects.all()
@@ -294,6 +294,11 @@ def usuario(request, name):
 	try:
 		usuario = User.objects.get(username=name)
 	except ObjectDoesNotExist:
+		if request.user.is_authenticated():
+			logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/"'> logout</a>'
+		else:
+			logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/"'> login</a>'
+
 		nombre = "Este usuario no está registrado"
 		template = get_template("Plantilla_personal/index.html") 
 		c = Context({'logged': logged, 'nombre': nombre, 'content': ""})
@@ -390,8 +395,18 @@ def usuario(request, name):
 
 		
 def about(request):
-	return HttpResponse("Esta es la práctica final de la asignatura Servicios y Aplicaciones en Redes de Ordenadores" + "<br>" + 
-						"Realizada por: Sergio Asperilla Díaz")
+
+	if request.user.is_authenticated():
+		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/about"'> logout</a>'
+
+	else:
+		logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/about"'> login</a>'
+
+
+	contenido = "Práctica final de la asignatura Servicios y Aplicaciones en Redes de Ordenadores" + "<br>" + "Sergio Asperilla Díaz" + "<br>" + "Esta práctica utiliza datos del portal de la Comunidad de Madrid. Cada usuario puede ver los museos más comentados(página principal), todos los museos (/museos) y las páginas de cada museo donde podrán ver los comentarios; además de las páginas personales de los usuarios registrados. Sólo estos, los usuarios registrados, podrán comentar en las páginas de los museos y, además, tener una página personal donde seleccionar sus museos favoritos."
+	template = get_template("Plantilla_about/index.html")	
+	c = Context({'logged': logged, 'content': contenido})
+	return HttpResponse(template.render(c))
 
 
 def xml(request, usuarioxml):
