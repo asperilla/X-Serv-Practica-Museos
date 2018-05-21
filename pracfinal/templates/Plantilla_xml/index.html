@@ -5,23 +5,26 @@
         <descripcion> Datos de los Museos de la ciudad de Madrid. Localización, transportes, horarios, visitas, datos de contacto. 
      	</descripcion>
     </infoDataset>
-    <contenido>
-        <tipo>EntidadesYOrganismos</tipo>
-        <atributos idioma="es">
-            <atributo nombre="NOMBRE">{{ nombre }}</atributo>
-            <atributo nombre="DESCRIPCION-ENTIDAD"><![CDATA[{{ descripcion }}]]></atributo>
-            <atributo nombre="ACCESIBILIDAD">{{ accesibilidad }}</atributo>
-            <atributo nombre="CONTENT-URL">{{ enlace }}</atributo>
-            <atributo nombre="LOCALIZACION">
-                <atributo nombre="NOMBRE-VIA">{{ direccion }}</atributo>
-                <atributo nombre="CODIGO-POSTAL">{{ codigopostal }}</atributo>
-                <atributo nombre="BARRIO">{{ barrio }}</atributo>
-                <atributo nombre="DISTRITO">{{ distrito }}</atributo>
-            </atributo>
-            <atributo nombre="DATOSCONTACTOS">
-                <atributo nombre="TELEFONO">{{ telefono }}</atributo>
-                <atributo nombre="EMAIL">{{ email }}</atributo>
-            </atributo>
-        </atributos>
-    </contenido>
+	{% for i in paginas %}
+		{% if nombreuser == i.Usuario.username %}
+    	<contenido>
+        	<atributos idioma="es">
+            	<atributo nombre="NOMBRE">{{ i.MuseoSeleccionado.Nombre }}</atributo>
+            	<atributo nombre="DESCRIPCION-ENTIDAD"><![CDATA[{{ i.MuseoSeleccionado.Descripcion }}]]></atributo>
+            	<atributo nombre="ACCESIBILIDAD">{{ i.MuseoSeleccionado.Accesibilidad }}</atributo>
+            	<atributo nombre="CONTENT-URL">{{ i.MuseoSeleccionado.Enlace }}</atributo>
+            	<atributo nombre="LOCALIZACION">
+                	<atributo nombre="NOMBRE-VIA">{{ i.MuseoSeleccionado.Direccion }}</atributo>
+                	<atributo nombre="CODIGO-POSTAL">{{ i.MuseoSeleccionado.Codigopostal }}</atributo>
+                	<atributo nombre="BARRIO">{{ i.MuseoSeleccionado.Barrio }}</atributo>
+                	<atributo nombre="DISTRITO">{{ i.MuseoSeleccionado.Distrito }}</atributo>
+            	</atributo>
+            	<atributo nombre="DATOSCONTACTOS">
+                	<atributo nombre="TELEFONO">{{ i.MuseoSeleccionado.Telefono }}</atributo>
+                	<atributo nombre="EMAIL">{{ i.MuseoSeleccionado.Email }}</atributo>
+            	</atributo>
+        	</atributos>
+    	</contenido>
+		{% endif %}
+	{% endfor %}
 </Contenidos>

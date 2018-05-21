@@ -333,7 +333,7 @@ def usuario(request, name):
 
 
 	usuario = User.objects.get(username=name)
-	paginapers = PagPersonal.objects.get(Usuario=usuario)
+
 
 	if request.method == "POST":
 		if pulsado:
@@ -344,60 +344,79 @@ def usuario(request, name):
 				contenido = "No hay más museos"
 		
 		if cambio_titulo:
-			titulo = cambio_titulo
-			paginapers.Titulo = titulo
-			paginapers.save()
+			for pag in paginas:
+				if usuario.username == pag.Usuario.username:			
+					titulo = cambio_titulo
+					pag.Titulo = titulo
+					pag.save()
 
 		if cambio_color:
-			color = cambio_color
-			paginapers.Color = color
-			paginapers.save()
+			for pag in paginas:
+				if usuario.username == pag.Usuario.username:
+					color = cambio_color
+					pag.Color = color
+					pag.save()
 
 		if cambio_letra:
-			letra = cambio_letra
-			paginapers.TamañoLetra = letra
-			paginapers.save()
+			for pag in paginas:
+				if usuario.username == pag.Usuario.username:
+					letra = cambio_letra
+					pag.TamañoLetra = letra
+					pag.save()
 
-	if request.user.is_authenticated():
-		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
-		contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
-	else:
-		logged = 'Not logged in.' + ' <a href=login?next=/>login</a>'
-
-	paginapers = PagPersonal.objects.get(Usuario=usuario)
-
+	paginapers = PagPersonal.objects.all()
+	
+	k = 0
+	for pag in paginapers:
+		if usuario.username == pag.Usuario.username:
+			paginaP = pag
+			k = k + 1
+			if k == 1:
+				break
+			
 	l_nombres = []
 	users = User.objects.all()
 	for user in users:
 		nombre = user.username
 		l_nombres += [nombre]
 
+		
+	contenido = "<h4>Museos seleccionados por el usuario:</h4>" + "<br>" + "<br>" + contenido
+	if request.user.is_authenticated():
+		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
+		if request.user.username == name:
+			contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
+	else:
+		logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/" + name + '> login</a>'
+
 	template = get_template("Plantilla_personal/index.html") 
-	c = Context({'logged': logged, 'nombre': paginapers.Titulo, 'color': paginapers.Color, 'letra': paginapers.TamañoLetra, 'content': contenido, 'lista_usuarios': l_nombres})
+	c = Context({'logged': logged, 'nombre': paginaP.Titulo, 'color': paginaP.Color, 'letra': paginaP.TamañoLetra, 'content': contenido, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
 
 		
 def about(request):
 	return HttpResponse("Esta es la práctica final de la asignatura Servicios y Aplicaciones en Redes de Ordenadores" + "<br>" + 
 						"Realizada por: Sergio Asperilla Díaz")
+		#	Nombre = pag.MuseoSeleccionado.Nombre
+		#	Descripcion = pag.MuseoSeleccionado.Descripcion
+			#Accesibilidad = pag.MuseoSeleccionado.Accesibilidad
+		#	Barrio = pag.MuseoSeleccionado.Barrio
+			#Distrito = pag.MuseoSeleccionado.Distrito
+			#Telefono = pag.MuseoSeleccionado.Telefono
+			#Email = pag.MuseoSeleccionado.Email
+			#Direccion = pag.MuseoSeleccionado.Direccion
+			#CodigoPostal = pag.MuseoSeleccionado.CodigoPostal
+			#Enlace = pag.MuseoSeleccionado.Enlace
 
 def xml(request, usuarioxml):
 	usuario = User.objects.get(username = usuarioxml)
-	pag = PagPersonal.objects.get(Usuario=usuario)
+	paginas = PagPersonal.objects.all()
 
-	Nombre = pag.MuseoSeleccionado.Nombre
-	Descripcion = pag.MuseoSeleccionado.Descripcion
-	Accesibilidad = pag.MuseoSeleccionado.Accesibilidad
-	Barrio = pag.MuseoSeleccionado.Barrio
-	Distrito = pag.MuseoSeleccionado.Distrito
-	Telefono = pag.MuseoSeleccionado.Telefono
-	Email = pag.MuseoSeleccionado.Email
-	Direccion = pag.MuseoSeleccionado.Direccion
-	CodigoPostal = pag.MuseoSeleccionado.CodigoPostal
-	Enlace = pag.MuseoSeleccionado.Enlace
+	nombreuser = usuario.username
+
 	
 	template = get_template("Plantilla_xml/index.html") 
-	c = Context({'usuario': usuarioxml, 'nombre': Nombre, 'descripcion':Descripcion ,'accesibilidad':Accesibilidad, 'barrio':Barrio, 'distrito':Distrito, 'telefono':Telefono,'email':Email,'direccion':Direccion,'codigopostal':CodigoPostal,'enlace':Enlace})
+	c = Context({'usuario': usuarioxml, 'paginas': paginas, 'nombreuser': nombreuser})#, 'nombre': Nombre, 'descripcion':Descripcion ,'accesibilidad':Accesibilidad, 'barrio':Barrio, 'distrito':Distrito, 'telefono':Telefono,'email':Email,'direccion':Direccion,'codigopostal':CodigoPostal,'enlace':Enlace})
 	
 	return HttpResponse(template.render(c), content_type = "text/xml")
 
