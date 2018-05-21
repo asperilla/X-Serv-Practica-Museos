@@ -14,7 +14,7 @@ from .models import Comentario
 from .models import User
 from .models import PagPersonal
 
-# Defino los botones -> "Accesibles":
+# Defino los botones [Accesibles] de la página principal
 
 boton_accesibles = """
 	<form action="http://localhost:8000/" method="POST">
@@ -27,6 +27,16 @@ boton_accesibles_get = """
 	<input type="submit" value="Accesibles">
 	</form>
 	"""
+
+#Función que me devuelve la lista de los usuarios registrados
+def users_registrados():
+	l_nombres = []
+	users = User.objects.all()
+	for user in users:
+		nombre = user.username
+		l_nombres += [nombre]
+	return l_nombres
+
 
 @csrf_exempt
 def barra(request):
@@ -47,17 +57,17 @@ def barra(request):
 				contenido = direccion + "<br>" + mas_info
 				respuesta += '<li>''<a href=' + url + '>' + museo.Nombre + '</a>' + "<br>" + direccion + "<br>" + mas_info + "<br>" + "<br>"
 		respuesta += "<ul>"
-		template = get_template("Plantilla_1/index.html") #	
+		template = get_template("Plantilla_1/index.html")	
 		c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles_get})
 		return HttpResponse(template.render(c))
 			
 	
-	museos = Museo.objects.all() # dame  los museos; me los devuelve en una lista; museo.id, museo.nombre...
+	museos = Museo.objects.all() #me los devuelve en una lista; museo.id, museo.nombre...
 	if not museos:
 
-	## Código visto en StackOverFlow ##
+	## Código visto en StackOverFlow y adaptado a mi prática ## --> Lo utilizo para pasar los datos del archivo xml a la base de datos.
 
-			#Parseo el archivo xml
+		#Parseo el archivo xml
 		xmldoc = minidom.parse('museos.xml')
 
 		for i in range(67):
@@ -83,7 +93,7 @@ def barra(request):
 				if i not in lista_keys:
 					dicc[i] = ""
 
-			try:
+			try: #Por cada museo parseado, indexo los valores definidos en models.
 				museo_nuevo = Museo(Nombre=dicc["NOMBRE"], Descripcion=dicc["DESCRIPCION-ENTIDAD"], Accesibilidad=dicc["ACCESIBILIDAD"],
 									Barrio=dicc["BARRIO"], Distrito=dicc["DISTRITO"], Telefono=dicc["TELEFONO"], Email=dicc["EMAIL"], 									Direccion=dicc["NOMBRE-VIA"], CodigoPostal=dicc["CODIGO-POSTAL"], Enlace=dicc["CONTENT-URL"])
 
@@ -94,7 +104,7 @@ def barra(request):
 
 			museo_nuevo.save()
 
-
+	#Ordeno los museos por número de comentarios para representar los 5 más comentados en la página principal
 	museos_comentados = Museo.objects.order_by('-NumeroComentarios')
 	respuesta = "<ul>"
 	k = 0
@@ -110,11 +120,7 @@ def barra(request):
 			break
 	respuesta += "<ul>"
 
-	l_nombres = []
-	users = User.objects.all()
-	for user in users:
-		nombre = user.username
-		l_nombres += [nombre]
+	l_nombres = users_registrados()
 		
 	template = get_template("Plantilla_1/index.html")
 	c = Context({'logged': logged, 'content': respuesta, 'accesibles': boton_accesibles, 'lista_usuarios': l_nombres})
@@ -137,6 +143,12 @@ def museos(request):
 	else:
 		logged = 'Not logged in.' + ' <a href=http://localhost:8000/login?next=/museos>login</a>'
 
+	museos = Museo.objects.all()
+	respuesta = "<ul>"
+	for museo in museos:
+		respuesta += '<li>''<a href="/museos/' + str(museo.id) + '">' + museo.Nombre + '</a>'		
+	respuesta += "<ul>"
+
 	if request.method == "POST":
 		request_body = request.body.decode('utf-8')
 		distrito = request_body.split('=')[1]
@@ -147,25 +159,13 @@ def museos(request):
 				respuesta += '<li><a href="/museos/' + str(museo.id) + '">' + museo.Nombre + '</a>'
 		respuesta += "<ul>"
 		respuesta = "Museos en distrito: " + distrito + "<br>" + respuesta
-		template = get_template("Plantilla_museos/index.html") #	
-		c = Context({'logged': logged, 'formulario_distrito': formulario_distrito, 'content': respuesta})
-		return HttpResponse(template.render(c))
+			
+	l_nombres = users_registrados()
 
-	museos = Museo.objects.all() # dame todos los museos; me los devuelve en una lista; museo.id, museo.nombre...
-	respuesta = "<ul>"
-	for museo in museos:
-		respuesta += '<li>''<a href="/museos/' + str(museo.id) + '">' + museo.Nombre + '</a>'		
-	respuesta += "<ul>"			
-
-	l_nombres = []
-	users = User.objects.all()
-	for user in users:
-		nombre = user.username
-		l_nombres += [nombre]
-
-	template = get_template("Plantilla_museos/index.html") #	
+	template = get_template("Plantilla_museos/index.html")	
 	c = Context({'logged': logged, 'content': respuesta, 'formulario_distrito': formulario_distrito, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
+
 
 @csrf_exempt
 def museo(request, number):
@@ -173,7 +173,6 @@ def museo(request, number):
 	recurso = request.path
 	number = recurso.split('/')[2]
 	n_int = int(number)
-
 
 	formulario_comentario = """
 		<form action="" method="POST">
@@ -190,7 +189,6 @@ def museo(request, number):
 		"""
 
 	museo =	Museo.objects.get(id=int(number))
-	print("nummmm: " + str(museo.NumeroComentarios))
 	nombre = museo.Nombre
 
 	comentarios = Comentario.objects.all()
@@ -242,11 +240,6 @@ def museo(request, number):
 			nuevo_museo_seleccionado.save()
 			respuesta = "Museo añadido a tu página personal" + "<br>" + respuesta + "<br>" + formulario_comentario 
 		
-		template = get_template("Plantilla_museo/index.html") #	
-		c = Context({'logged': logged, 'nombre': nombre, 'content': respuesta})
-		return HttpResponse(template.render(c))
-	
-
 	l_nombres = []
 	users = User.objects.all()
 	for user in users:
@@ -256,6 +249,7 @@ def museo(request, number):
 	template = get_template("Plantilla_museo/index.html") #	
 	c = Context({'logged': logged, 'nombre': nombre, 'content': respuesta, 'lista_usuarios': l_nombres})
 	return HttpResponse(template.render(c))
+
 
 @csrf_exempt
 def usuario(request, name):
@@ -290,7 +284,7 @@ def usuario(request, name):
 		</form>
 		"""
 
-	pulsado = request.POST.get("añadir")
+	pulsado = request.POST.get("cargar")
 	cambio_titulo = request.POST.get("nuevo_titulo")
 	cambio_color = request.POST.get("nuevo_color")
 	cambio_letra = request.POST.get("nueva_letra")
@@ -333,16 +327,30 @@ def usuario(request, name):
 
 
 	usuario = User.objects.get(username=name)
+	contenido = "<h4>Museos seleccionados por el usuario:</h4>" + "<br>" + "<br>" + contenido
 
+	if request.user.is_authenticated():
+		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
+		if request.user.username == name:
+			contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
+	else:
+		logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/" + name + '> login</a>'
 
 	if request.method == "POST":
 		if pulsado:
 			if k > 5:
 				contenido = respuesta
-
+				
 			if k <= 5:
-				contenido = "No hay más museos"
+				contenido = respuesta + "<br>" + "No hay más museos"
 		
+			if request.user.is_authenticated():
+				logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
+				if request.user.username == name:
+					contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
+			else:
+				logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/" + name + '> login</a>'
+
 		if cambio_titulo:
 			for pag in paginas:
 				if usuario.username == pag.Usuario.username:			
@@ -374,20 +382,7 @@ def usuario(request, name):
 			if k == 1:
 				break
 			
-	l_nombres = []
-	users = User.objects.all()
-	for user in users:
-		nombre = user.username
-		l_nombres += [nombre]
-
-		
-	contenido = "<h4>Museos seleccionados por el usuario:</h4>" + "<br>" + "<br>" + contenido
-	if request.user.is_authenticated():
-		logged = 'Logged in as ' + request.user.username + '<a href=' + "/logout?next=/" + name + '> logout</a>'
-		if request.user.username == name:
-			contenido = formulario_titulo + "  " + formulario_color + "  " + formulario_letra + "<br>" + contenido
-	else:
-		logged = 'Not logged in.' + '<a href=' + "http://localhost:8000/login?next=/" + name + '> login</a>'
+	l_nombres = users_registrados()
 
 	template = get_template("Plantilla_personal/index.html") 
 	c = Context({'logged': logged, 'nombre': paginaP.Titulo, 'color': paginaP.Color, 'letra': paginaP.TamañoLetra, 'content': contenido, 'lista_usuarios': l_nombres})
@@ -397,27 +392,15 @@ def usuario(request, name):
 def about(request):
 	return HttpResponse("Esta es la práctica final de la asignatura Servicios y Aplicaciones en Redes de Ordenadores" + "<br>" + 
 						"Realizada por: Sergio Asperilla Díaz")
-		#	Nombre = pag.MuseoSeleccionado.Nombre
-		#	Descripcion = pag.MuseoSeleccionado.Descripcion
-			#Accesibilidad = pag.MuseoSeleccionado.Accesibilidad
-		#	Barrio = pag.MuseoSeleccionado.Barrio
-			#Distrito = pag.MuseoSeleccionado.Distrito
-			#Telefono = pag.MuseoSeleccionado.Telefono
-			#Email = pag.MuseoSeleccionado.Email
-			#Direccion = pag.MuseoSeleccionado.Direccion
-			#CodigoPostal = pag.MuseoSeleccionado.CodigoPostal
-			#Enlace = pag.MuseoSeleccionado.Enlace
+
 
 def xml(request, usuarioxml):
 	usuario = User.objects.get(username = usuarioxml)
 	paginas = PagPersonal.objects.all()
-
 	nombreuser = usuario.username
 
-	
 	template = get_template("Plantilla_xml/index.html") 
-	c = Context({'usuario': usuarioxml, 'paginas': paginas, 'nombreuser': nombreuser})#, 'nombre': Nombre, 'descripcion':Descripcion ,'accesibilidad':Accesibilidad, 'barrio':Barrio, 'distrito':Distrito, 'telefono':Telefono,'email':Email,'direccion':Direccion,'codigopostal':CodigoPostal,'enlace':Enlace})
-	
+	c = Context({'usuario': usuarioxml, 'paginas': paginas, 'nombreuser': nombreuser})
 	return HttpResponse(template.render(c), content_type = "text/xml")
 
 
